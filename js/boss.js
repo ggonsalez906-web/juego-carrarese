@@ -14,12 +14,12 @@
       this.introPlayed = false;
       this.introTimer = 0;
 
-      // Boss stats (PJ SPEZIA GORDO)
-      this.width = 75;
-      this.height = 90;
+      // Boss stats (PJ SPEZIA GORDO) - Escala proporcional al protagonista
+      this.width = 125;
+      this.height = 150;
       this.groundY = 325;
       this.x = 6150;
-      this.y = this.groundY - this.height; // Exactly on the wagon floor
+      this.y = this.groundY - this.height; // Exactly on the wagon floor (175)
       this.health = 100;
       this.maxHealth = 100;
 
@@ -169,7 +169,7 @@
       const dir = (player.x < this.x) ? -1 : 1;
       this.projectiles.push({
         x: this.x + (dir > 0 ? this.width : 0),
-        y: this.y + 25,
+        y: this.y + 50,
         vx: dir * 180,
         vy: -70,
         width: 18,
@@ -261,10 +261,10 @@
 
         // Boss Health Bar above head
         if (this.state !== 'defeat') {
-          const barW = 80;
-          const barH = 7;
-          const barX = bx - 2;
-          const barY = by - 14;
+          const barW = 100;
+          const barH = 8;
+          const barX = bx + this.width / 2 - barW / 2;
+          const barY = by - 16;
 
           ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
           ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);

@@ -5,24 +5,25 @@
     class Player {
         constructor() {
             this.x = 100;
-            this.y = 235; // groundY(325) - height(90)
+            this.groundY = 325; // Floor of the train carriage
+            this.width = 75;
+            this.height = 150;  // Much larger, slightly smaller than the door
+            this.y = this.groundY - this.height; // 175
             this.vx = 0;
             this.vy = 0;
-            this.width = 50;
-            this.height = 90;
             this.grounded = true;
             this.facingRight = true;
             this.state = 'idle'; // idle|walking|jumping|throwing|hurt|defeat
             this.health = 100;
-            this.speed = 150;
-            this.jumpForce = -350;
-            this.gravity = 800;
+            this.speed = 175;
+            this.jumpForce = -420;
+            this.gravity = 980;
 
             // Animation
             this.currentAnim = 'idle';
             this.animTimer = 0;
             this.animFrame = 0;
-            this.animSpeed = 0.15; // seconds per frame
+            this.animSpeed = 0.14; // seconds per frame
 
             // Hurt / invincibility
             this.hurtTimer = 0;
@@ -32,13 +33,10 @@
 
             // Throwing
             this.throwTimer = 0;
-            this.throwDuration = 0.5;
+            this.throwDuration = 0.45;
 
             // Projectiles
             this.projectiles = [];
-
-            // Ground Y reference
-            this.groundY = 325;
 
             // Animation sets - will be populated after assets load
             this.animations = {};
@@ -47,17 +45,17 @@
         init() {
             const imgs = Game.assets.images;
             this.animations = {
+                // Idle uses a single consistent frame so the player NEVER rotates in place
                 idle: [
-                    imgs['pj_blanco_parado_1'],
-                    imgs['pj_blanco_parado_2'],
-                    imgs['pj_blanco_parado_3'],
-                    imgs['pj_blanco_parado_4']
+                    imgs['pj_blanco_caminando_1'] || imgs['pj_blanco_parado_1']
                 ],
+                // Walk uses the 5 dedicated walking frames
                 walk_base: [
-                    imgs['pj_blanco_parado_1'],
-                    imgs['pj_blanco_parado_2'],
-                    imgs['pj_blanco_parado_3'],
-                    imgs['pj_blanco_parado_4']
+                    imgs['pj_blanco_caminando_1'],
+                    imgs['pj_blanco_caminando_2'],
+                    imgs['pj_blanco_caminando_3'],
+                    imgs['pj_blanco_caminando_4'],
+                    imgs['pj_blanco_caminando_5']
                 ],
                 walk_camiseta: [
                     imgs['pj_camiseta_caminando_1'],
@@ -101,12 +99,11 @@
         }
 
         /**
-         * Returns the correct walk/idle animation set based on equipment state.
+         * Returns the correct walk animation set based on equipment state.
          */
         getWalkAnim() {
             const eq = Game.equipment;
             if (eq.camiseta && eq.bufanda && eq.gorra) {
-                // Full outfit - use throw_full frames as idle/walk (they show full costume)
                 return this.animations.throw_full;
             }
             if (eq.camiseta) {
@@ -118,17 +115,19 @@
             return this.animations.walk_base;
         }
 
+        /**
+         * Returns stationary single-frame idle so character NEVER spins or rotates alone
+         */
         getIdleAnim() {
             const eq = Game.equipment;
             if (eq.camiseta && eq.bufanda && eq.gorra) {
-                return this.animations.throw_full;
+                return [this.animations.throw_full[0]];
             }
-            // For partial equipment, use same logic as walk for idle
             if (eq.camiseta) {
-                return this.animations.walk_camiseta;
+                return [this.animations.walk_camiseta[0]];
             }
             if (eq.bufanda) {
-                return this.animations.walk_bufanda;
+                return [this.animations.walk_bufanda[0]];
             }
             return this.animations.idle;
         }
@@ -161,7 +160,6 @@
 
         update(dt) {
             if (this.state === 'defeat') {
-                // Play defeat animation then stop
                 this.updateAnimation(dt);
                 return;
             }
@@ -180,7 +178,6 @@
             if (this.hurtTimer > 0) {
                 this.hurtTimer -= dt;
                 this.flashTimer += dt;
-                // Flash every 0.1s
                 this.visible = Math.floor(this.flashTimer / 0.1) % 2 === 0;
                 if (this.hurtTimer <= 0) {
                     this.invincible = false;
@@ -236,7 +233,7 @@
             this.x += this.vx * dt;
             this.y += this.vy * dt;
 
-            // --- Ground check ---
+            // --- Ground check (feet on wagon floor) ---
             if (this.y + this.height > this.groundY) {
                 this.y = this.groundY - this.height;
                 this.vy = 0;
@@ -253,7 +250,6 @@
 
             // --- Clamp to world bounds ---
             if (this.x < 0) this.x = 0;
-            // Right bound: allow scrolling through the train world
             const worldWidth = (Game.trainWorld && Game.trainWorld.worldWidth) ? Game.trainWorld.worldWidth : 6400;
             if (this.x + this.width > worldWidth) {
                 this.x = worldWidth - this.width;
@@ -264,10 +260,10 @@
                 const p = this.projectiles[i];
                 p.x += p.vx * dt;
                 p.y += p.vy * dt;
-                p.vy += 300 * dt; // projectile gravity
+                p.vy += 260 * dt;
                 p.life -= dt;
 
-                if (p.life <= 0 || p.x < -50 || p.x > worldWidth + 50) {
+                if (p.life <= 0 || p.x < -50 || p.x > worldWidth + 50 || p.y > this.groundY) {
                     this.projectiles.splice(i, 1);
                 }
             }
@@ -299,7 +295,6 @@
                 this.animFrame++;
 
                 if (this.state === 'defeat') {
-                    // Don't loop defeat - stay on last frame
                     if (this.animFrame >= frames.length) {
                         this.animFrame = frames.length - 1;
                     }
@@ -322,10 +317,9 @@
             const drawX = this.x - cameraX;
             const drawY = this.y;
 
-            // Normalize sprite to consistent display size
-            // Scale to fit height = 90, maintain aspect ratio
-            const srcW = frame.naturalWidth || frame.width || 69;
-            const srcH = frame.naturalHeight || frame.height || 181;
+            // Normalize sprite to height = 150 (slightly smaller than train door)
+            const srcW = frame.naturalWidth || frame.width || 171;
+            const srcH = frame.naturalHeight || frame.height || 308;
             const scale = this.height / srcH;
             const displayW = srcW * scale;
             const displayH = this.height;
@@ -333,7 +327,7 @@
             ctx.save();
 
             if (!this.facingRight) {
-                // Flip horizontally
+                // Flip horizontally towards left
                 ctx.translate(drawX + displayW / 2, drawY);
                 ctx.scale(-1, 1);
                 ctx.drawImage(frame, -displayW / 2, 0, displayW, displayH);
@@ -343,7 +337,7 @@
 
             ctx.restore();
 
-            // --- Render projectiles ---
+            // --- Render thrown stone projectiles ---
             const stoneImg1 = Game.assets.images['piedra_1'];
             const stoneImg2 = Game.assets.images['piedra_2'];
             for (let i = 0; i < this.projectiles.length; i++) {
@@ -351,13 +345,12 @@
                 const px = p.x - cameraX;
                 const py = p.y;
                 const stoneImg = (i % 2 === 0) ? stoneImg1 : stoneImg2;
-                if (stoneImg) {
-                    ctx.drawImage(stoneImg, px - 8, py - 8, 16, 16);
+                if (stoneImg && stoneImg.complete) {
+                    ctx.drawImage(stoneImg, px - 11, py - 11, 22, 22);
                 } else {
-                    // Fallback: draw a small circle
                     ctx.fillStyle = '#888';
                     ctx.beginPath();
-                    ctx.arc(px, py, 6, 0, Math.PI * 2);
+                    ctx.arc(px, py, 7, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
@@ -372,7 +365,7 @@
 
             this.state = 'hurt';
             this.invincible = true;
-            this.hurtTimer = 1.0; // 1 second of invincibility
+            this.hurtTimer = 1.0;
             this.flashTimer = 0;
 
             if (Game.audio && Game.audio.playSound) {
@@ -390,13 +383,13 @@
             this.animFrame = 0;
             this.animTimer = 0;
 
-            // Create projectile
+            // Create projectile thrown from chest/shoulder
             const dir = this.facingRight ? 1 : -1;
             this.projectiles.push({
                 x: this.x + (this.facingRight ? this.width : 0),
-                y: this.y + this.height * 0.3,
-                vx: 300 * dir,
-                vy: -80,
+                y: this.y + this.height * 0.35,
+                vx: 320 * dir,
+                vy: -90,
                 life: 2.0
             });
 
@@ -428,10 +421,10 @@
          */
         getBounds() {
             return {
-                x: this.x + 8,  // slight inset for more forgiving collisions
-                y: this.y + 5,
-                width: this.width - 16,
-                height: this.height - 5
+                x: this.x + 12,
+                y: this.y + 10,
+                width: this.width - 24,
+                height: this.height - 10
             };
         }
     }
@@ -440,7 +433,6 @@
     if (!window.Game) window.Game = {};
     window.Game.Player = Player;
 
-    // Create instance and register
     const player = new Player();
     window.Game.player = player;
 })();
