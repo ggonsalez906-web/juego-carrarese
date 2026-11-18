@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>El viaje del hincha del Carrarese</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Touch controls overlay -->
+  <div id="touch-controls">
+    <div id="touch-left-zone">
+      <button class="touch-btn" id="btn-left">◀</button>
+      <button class="touch-btn" id="btn-right">▶</button>
+    </div>
+    <div id="touch-right-zone">
+      <button class="touch-btn" id="btn-jump">▲</button>
+      <button class="touch-btn small" id="btn-action">E</button>
+      <button class="touch-btn small" id="btn-throw">F</button>
+    </div>
+  </div>
+
+  <!-- Scripts - order matters -->
+  <script src="js/gameState.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/equipment.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/collectibles.js"></script>
+  <script src="js/obstacles.js"></script>
+  <script src="js/train.js"></script>
+  <script src="js/intro.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/boss.js"></script>
+  <script src="js/interface.js"></script>
+  <!-- Main must be last -->
+  <script src="js/main.js"></script>
+</body>
+</html>
