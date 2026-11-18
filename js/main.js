@@ -102,7 +102,10 @@
     { folder: 'interfaz', file: 'FLECHA DER 1.png' },
     { folder: 'interfaz', file: 'FLECHA IZQ 1.png' },
     { folder: 'interfaz', file: 'GANASTE.png' },
-    { folder: 'interfaz', file: 'LAURELES.png' }
+    { folder: 'interfaz', file: 'LAURELES.png' },
+    { folder: 'interfaz', file: 'BOTON OPCIONES.png' },
+    { folder: 'interfaz', file: 'BOTON CREDITOS.png' },
+    { folder: 'interfaz', file: 'FONDO PARA LA PORTADA CANCHA.png' }
   ];
 
   function setupCanvas() {

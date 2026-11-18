@@ -14,14 +14,14 @@
       this.introPlayed = false;
       this.introTimer = 0;
 
-      // Boss stats
-      this.x = 6150;
-      this.y = 190;
+      // Boss stats (PJ SPEZIA GORDO)
       this.width = 75;
       this.height = 90;
+      this.groundY = 325;
+      this.x = 6150;
+      this.y = this.groundY - this.height; // Exactly on the wagon floor
       this.health = 100;
       this.maxHealth = 100;
-      this.groundY = 280;
 
       // Movement & AI
       this.vx = 0;
@@ -39,12 +39,6 @@
 
       // Projectiles thrown by boss
       this.projectiles = [];
-
-      // Minor Spezia fans in the wagon
-      this.minions = [
-        { x: 5750, y: 190, frame: 0, animTimer: 0 },
-        { x: 5950, y: 190, frame: 1, animTimer: 0 }
-      ];
     }
 
     init() {}
@@ -70,16 +64,6 @@
       }
 
       if (!this.active) return;
-
-      // Update minions animation
-      for (let i = 0; i < this.minions.length; i++) {
-        const m = this.minions[i];
-        m.animTimer += dt;
-        if (m.animTimer >= 0.25) {
-          m.animTimer = 0;
-          m.frame = (m.frame + 1) % 4;
-        }
-      }
 
       // Boss intro freeze
       if (this.introTimer > 0) {
@@ -108,7 +92,7 @@
       const distToPlayer = player.x - this.x;
       this.facingRight = distToPlayer > 0;
 
-      // Keep boss within bounds of last carriage (5800 - 6350)
+      // Keep boss within bounds of last carriage (5850 - 6320)
       if (Math.abs(distToPlayer) > 130) {
         this.vx = (distToPlayer > 0 ? 1 : -1) * this.speed;
         this.state = 'walk';
@@ -238,26 +222,9 @@
       const cameraX = (G.renderer && G.renderer.cameraX) ? G.renderer.cameraX : 0;
       const imgs = G.assets.images;
 
-      // 1. Draw Minions (Spezia rubio fans)
-      for (let i = 0; i < this.minions.length; i++) {
-        const m = this.minions[i];
-        const mx = m.x - cameraX;
-        if (mx < -50 || mx > G.WIDTH + 50) continue;
-
-        // Image keys: pj_spezia_rubio_1 .. 4
-        const rubioKey = 'pj_spezia_rubio_' + (m.frame + 1);
-        const rubioImg = imgs[rubioKey] || imgs['pj_spezia_rubio_1'];
-        if (rubioImg && rubioImg.complete) {
-          ctx.drawImage(rubioImg, mx, m.y + 10, 40, 80);
-        } else {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(mx, m.y + 20, 30, 70);
-        }
-      }
-
       if (!this.active) return;
 
-      // 2. Draw Boss (PJ SPEZIA GORDO)
+      // Draw Boss (PJ SPEZIA GORDO)
       const bx = this.x - cameraX;
       const by = this.y;
 
@@ -313,7 +280,7 @@
         }
       }
 
-      // 3. Draw Boss Projectiles
+      // Draw Boss Projectiles
       for (let i = 0; i < this.projectiles.length; i++) {
         const p = this.projectiles[i];
         const px = p.x - cameraX;
@@ -326,7 +293,7 @@
         ctx.stroke();
       }
 
-      // 4. Dramatic Intro Announcement Banner
+      // Dramatic Intro Announcement Banner
       if (this.introTimer > 0) {
         ctx.fillStyle = 'rgba(150, 0, 0, 0.85)';
         ctx.fillRect(0, G.HEIGHT / 2 - 35, G.WIDTH, 70);

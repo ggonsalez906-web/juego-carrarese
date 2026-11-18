@@ -141,99 +141,99 @@
       const G = window.Game;
       const imgs = G.assets.images;
 
-      // Dark blue Italian railway night background
-      const grad = ctx.createLinearGradient(0, 0, 0, G.HEIGHT);
-      grad.addColorStop(0, '#0c1b33');
-      grad.addColorStop(0.6, '#142d54');
-      grad.addColorStop(1, '#081324');
-      ctx.fillStyle = grad;
+      // 1. Imagen de portada subida a los assets (FONDO PARA LA PORTADA CANCHA.png)
+      const portada = imgs['fondo_para_la_portada_cancha'];
+      if (portada && portada.complete) {
+        ctx.drawImage(portada, 0, 0, G.WIDTH, G.HEIGHT);
+      } else {
+        // Fallback gradiente azul
+        const grad = ctx.createLinearGradient(0, 0, 0, G.HEIGHT);
+        grad.addColorStop(0, '#0c1b33');
+        grad.addColorStop(0.6, '#142d54');
+        grad.addColorStop(1, '#081324');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, G.WIDTH, G.HEIGHT);
+      }
+
+      // Sutil sombreado para contraste óptimo de interfaz
+      ctx.fillStyle = 'rgba(0, 10, 25, 0.45)';
       ctx.fillRect(0, 0, G.WIDTH, G.HEIGHT);
 
-      // Background silhouette of mountains
-      const mtnImg = imgs['fondo_montañas'];
-      if (mtnImg && mtnImg.complete) {
-        ctx.globalAlpha = 0.25;
-        ctx.drawImage(mtnImg, 0, 80, G.WIDTH, 200);
-        ctx.globalAlpha = 1.0;
-      }
-
-      // Escudo Carrarese
+      // 2. Escudo Carrarese
       const escudo = imgs['escudo_carrarese'];
       if (escudo && escudo.complete) {
-        ctx.drawImage(escudo, G.WIDTH / 2 - 25, 20, 50, 70);
+        ctx.drawImage(escudo, G.WIDTH / 2 - 24, 12, 48, 64);
       }
 
-      // Title Banner (CARTEL CARRARESE or styled text)
+      // 3. Cartel del Carrarese
       const cartel = imgs['cartel_carrarese'];
       if (cartel && cartel.complete) {
-        ctx.drawImage(cartel, G.WIDTH / 2 - 170, 95, 340, 80);
+        ctx.drawImage(cartel, G.WIDTH / 2 - 160, 80, 320, 72);
       } else {
         ctx.fillStyle = '#ffd700';
         ctx.font = 'bold 22px "Courier New", monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('EL VIAJE DEL HINCHA', G.WIDTH / 2, 110);
+        ctx.fillText('EL VIAJE DEL HINCHA', G.WIDTH / 2, 100);
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 16px "Courier New", monospace';
-        ctx.fillText('DEL CARRARESE', G.WIDTH / 2, 135);
+        ctx.fillText('DEL CARRARESE', G.WIDTH / 2, 125);
       }
 
-      // Subtitle
+      // Subtítulo
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(G.WIDTH / 2 - 140, 158, 280, 20);
       ctx.fillStyle = '#81d4fa';
       ctx.font = 'bold 11px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('LA TRASFERTA VERSO IL DERBY APUANO', G.WIDTH / 2, 185);
+      ctx.fillText('LA TRASFERTA VERSO IL DERBY APUANO', G.WIDTH / 2, 172);
 
-      // Buttons
-      // 1. JUGAR button
+      // 4. Botones con assets oficiales
+      // Botón JUGAR (BOTON JUGAR.png)
       const btnJugar = imgs['boton_jugar'];
       if (btnJugar && btnJugar.complete) {
-        ctx.drawImage(btnJugar, G.WIDTH / 2 - 75, 205, 150, 50);
-      } else {
-        this.drawButton(ctx, G.WIDTH / 2 - 75, 205, 150, 42, '▶ JUGAR', '#ffd700', '#002266');
+        ctx.drawImage(btnJugar, G.WIDTH / 2 - 75, 192, 150, 52);
       }
 
-      // 2. Options & Credits secondary buttons
-      this.drawButton(ctx, G.WIDTH / 2 - 130, 268, 120, 32, 'OPCIONES', '#ffffff', '#1a3263');
-      this.drawButton(ctx, G.WIDTH / 2 + 10, 268, 120, 32, 'CRÉDITOS', '#ffffff', '#1a3263');
+      // Botón OPCIONES (BOTON OPCIONES.png)
+      const btnOpciones = imgs['boton_opciones'];
+      if (btnOpciones && btnOpciones.complete) {
+        ctx.drawImage(btnOpciones, G.WIDTH / 2 - 145, 256, 135, 42);
+      }
 
-      // Version & controls hint
-      ctx.fillStyle = '#888';
+      // Botón CRÉDITOS (BOTON CREDITOS.png)
+      const btnCreditos = imgs['boton_creditos'];
+      if (btnCreditos && btnCreditos.complete) {
+        ctx.drawImage(btnCreditos, G.WIDTH / 2 + 10, 256, 135, 42);
+      }
+
+      // Hint de controles
+      ctx.fillStyle = '#fff';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
       ctx.font = '9px "Courier New", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('Controles: [A][D] Mover | [ESPACIO] Saltar | [F] Lanzar Piedras | [ESC] Pausa', G.WIDTH / 2, G.HEIGHT - 12);
-    },
-
-    drawButton(ctx, x, y, w, h, text, textColor, bgColor) {
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = '#ffd700';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x, y, w, h);
-
-      ctx.fillStyle = textColor;
-      ctx.font = 'bold 12px "Courier New", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(text, x + w / 2, y + h / 2 + 4);
+      ctx.shadowBlur = 0;
     },
 
     onClick(x, y) {
       const G = window.Game;
       if (G.audio) G.audio.playSound('button');
 
-      // Check JUGAR click (centered ~205-255)
-      if (x >= G.WIDTH / 2 - 80 && x <= G.WIDTH / 2 + 80 && y >= 200 && y <= 260) {
+      // Click BOTON JUGAR (x: G.WIDTH/2 - 75 .. +75, y: 192 .. 244)
+      if (x >= G.WIDTH / 2 - 80 && x <= G.WIDTH / 2 + 80 && y >= 190 && y <= 250) {
         G.stateManager.switch('INTRO');
         return;
       }
 
-      // Check OPCIONES (x: G.WIDTH/2 - 130 to -10, y: 268 to 300)
-      if (x >= G.WIDTH / 2 - 130 && x <= G.WIDTH / 2 - 10 && y >= 265 && y <= 305) {
+      // Click BOTON OPCIONES (x: G.WIDTH/2 - 145 .. -10, y: 256 .. 298)
+      if (x >= G.WIDTH / 2 - 150 && x <= G.WIDTH / 2 - 5 && y >= 252 && y <= 302) {
         G.stateManager.push('OPTIONS');
         return;
       }
 
-      // Check CRÉDITOS (x: G.WIDTH/2 + 10 to 130, y: 268 to 300)
-      if (x >= G.WIDTH / 2 + 10 && x <= G.WIDTH / 2 + 130 && y >= 265 && y <= 305) {
+      // Click BOTON CREDITOS (x: G.WIDTH/2 + 10 .. 145, y: 256 .. 298)
+      if (x >= G.WIDTH / 2 + 5 && x <= G.WIDTH / 2 + 150 && y >= 252 && y <= 302) {
         G.stateManager.push('CREDITS');
         return;
       }

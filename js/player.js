@@ -5,7 +5,7 @@
     class Player {
         constructor() {
             this.x = 100;
-            this.y = 190; // groundY(280) - height(90)
+            this.y = 235; // groundY(325) - height(90)
             this.vx = 0;
             this.vy = 0;
             this.width = 50;
@@ -38,7 +38,7 @@
             this.projectiles = [];
 
             // Ground Y reference
-            this.groundY = 280;
+            this.groundY = 325;
 
             // Animation sets - will be populated after assets load
             this.animations = {};

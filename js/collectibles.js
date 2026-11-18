@@ -15,13 +15,13 @@
         }
 
         spawnCollectibles() {
-            // Clothing items at specific progression points
-            this.addCollectible('camiseta', 1000, 220);
-            this.addCollectible('bufanda', 2800, 210);
-            this.addCollectible('gorra', 4500, 215);
+            // Clothing items at specific progression points (floating above wagon floor)
+            this.addCollectible('camiseta', 1000, 265);
+            this.addCollectible('bufanda', 2800, 260);
+            this.addCollectible('gorra', 4500, 255);
 
             // Copa near the end
-            this.addCollectible('copa', 5500, 200);
+            this.addCollectible('copa', 5500, 245);
 
             // Stones spread throughout (18 total)
             const stonePositions = [
@@ -31,8 +31,8 @@
                 5800, 6100
             ];
             for (let i = 0; i < stonePositions.length; i++) {
-                // Vary height a bit
-                const yOff = (i % 3 === 0) ? 200 : (i % 3 === 1) ? 215 : 225;
+                // Vary height near wagon floor
+                const yOff = (i % 3 === 0) ? 255 : (i % 3 === 1) ? 270 : 285;
                 this.addCollectible('piedra', stonePositions[i], yOff);
             }
         }

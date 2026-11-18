@@ -6,7 +6,7 @@
 
   const GRAVITY = 980; // pixels per second^2
   const MAX_FALL_SPEED = 600;
-  const GROUND_Y = 310; // Default ground level (world coords, bottom of play area)
+  const GROUND_Y = 325; // Default ground level (world coords, bottom of play area)
 
   /**
    * Apply gravity to an entity.
